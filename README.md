@@ -1,6 +1,7 @@
 # WinCC_S7
 ## 背景描述
 本程序基于WinCC自带的DLL以及S7.Net库开发</br>
+WinCC的dll提取自C:\Program Files (x86)\Common Files\Siemens\bin,包括CCHMIRuntime.dll和CCHMITags.dll</br>
 基于工作的需求,现场有一个PLC不具备修改条件,拥有100多个DB用于存放序列号,同时使用一个托盘号变量进行指向,HMI可以配置动态变量连接</br>
 WinCC无法实现此种变量连接,序列号还是以byte的形式存储,每个都连接再处理会导致外部变量的数量爆表</br>
 所以自己开发一个app来实现WinCC与PLC的交互,减少变量占用</br>
