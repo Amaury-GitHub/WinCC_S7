@@ -1,4 +1,4 @@
-﻿using S7.Net;
+using S7.Net;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -98,34 +98,33 @@ namespace WinCC_S7
             {
                 while (!cancellationTokenSource.IsCancellationRequested)
                 {
-                    // 创建WinCC连接
-                    WinCC = new CCHMIRUNTIME.HMIRuntime();
                     // 从WinCC读取托盘号码
                     Invoke((Action)(() =>
                     {
                         try
                         {
+                            // 创建WinCC连接
+                            WinCC = new CCHMIRUNTIME.HMIRuntime();
                             // 读取托盘1的号码
                             PalletNumber1Value.Text = WinCC.Tags[PalletNumber1Name.Text].Read().ToString();
                             // 更新连接状态
-                            Invoke((Action)(() => WinCC_Status.Checked = true));
+                            BeginInvoke((Action)(() => WinCC_Status.Checked = true));
                         }
                         catch (Exception)
                         {
                             // 更新连接状态
-                            Invoke((Action)(() => WinCC_Status.Checked = false));
+                            BeginInvoke((Action)(() => WinCC_Status.Checked = false));
+                            PalletNumber1Value.Text = null;
+                            PalletNumber2Value.Text = null;
                         }
                         try
                         {
                             // 读取托盘2的号码
                             PalletNumber2Value.Text = WinCC.Tags[PalletNumber2Name.Text].Read().ToString();
-                            // 更新连接状态
-                            Invoke((Action)(() => WinCC_Status.Checked = true));
                         }
                         catch (Exception)
                         {
-                            // 更新连接状态
-                            Invoke((Action)(() => WinCC_Status.Checked = false));
+
                         }
                     }));
                     // 尝试连接PLC
@@ -137,24 +136,15 @@ namespace WinCC_S7
                             S7 = new Plc(CpuType.S7300, S7_IP.Text, 0, 1);
                             // 尝试连接PLC
                             S7.Open();
-                            // 判断连接是否成功
-                            if (S7.IsConnected)
-                            {
-                                // 更新连接状态
-                                Invoke((Action)(() => PLC_Status.Checked = true));
-                            }
-                            else
-                            {
-                                // 更新连接状态
-                                Invoke((Action)(() => PLC_Status.Checked = false));
-                            }
+                            // 更新连接状态
+                            BeginInvoke((Action)(() => PLC_Status.Checked = true));
                         }
                         catch (Exception)
                         {
                             S7.Close();
                             S7 = null;
                             // 更新连接状态
-                            Invoke((Action)(() => PLC_Status.Checked = false));
+                            BeginInvoke((Action)(() => PLC_Status.Checked = false));
                         }
                     }
                     // 从PLC读取MLFB
@@ -173,7 +163,7 @@ namespace WinCC_S7
                                 S7?.Close();
                                 S7 = null;
                                 // 更新连接状态
-                                Invoke((Action)(() => PLC_Status.Checked = false));
+                                BeginInvoke((Action)(() => PLC_Status.Checked = false));
                             }
                         }
                         else
@@ -193,7 +183,7 @@ namespace WinCC_S7
                                 S7?.Close();
                                 S7 = null;
                                 // 更新连接状态
-                                Invoke((Action)(() => PLC_Status.Checked = false));
+                                BeginInvoke((Action)(() => PLC_Status.Checked = false));
                             }
                         }
                         else
@@ -208,25 +198,19 @@ namespace WinCC_S7
                         {
                             // 写入托盘1对应的MLFB
                             WinCC.Tags[MLFB1Name.Text].Write(MLFB1Value.Text);
-                            // 更新连接状态
-                            Invoke((Action)(() => WinCC_Status.Checked = true));
                         }
                         catch (Exception)
                         {
-                            // 更新连接状态
-                            Invoke((Action)(() => WinCC_Status.Checked = false));
+
                         }
                         try
                         {
                             // 写入托盘2对应的MLFB
                             WinCC.Tags[MLFB2Name.Text].Write(MLFB2Value.Text);
-                            // 更新连接状态
-                            Invoke((Action)(() => WinCC_Status.Checked = true));
                         }
                         catch (Exception)
                         {
-                            // 更新连接状态
-                            Invoke((Action)(() => WinCC_Status.Checked = false));
+
                         }
                     }));
 
@@ -251,7 +235,6 @@ namespace WinCC_S7
                 using (StreamReader reader = new StreamReader(filePath))
                 {
                     string line;
-                    string currentSection = null;
 
                     while ((line = reader.ReadLine()) != null)
                     {
@@ -262,7 +245,7 @@ namespace WinCC_S7
 
                         if (line.StartsWith("[") && line.EndsWith("]"))
                         {
-                            currentSection = line.Substring(1, line.Length - 2);
+                            _ = line.Substring(1, line.Length - 2);
                             continue;
                         }
 
